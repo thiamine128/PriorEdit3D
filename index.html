@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+    content="PriorEdit3D: Learning 3D Editing without Paired Supervision via Generative Prior Distillation.">
+  <meta name="keywords"
+    content="3D Editing, Generative Priors, Unpaired Learning, PriorEdit3D, 3D Gaussian Splatting, Distribution Matching">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PriorEdit3D</title>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <link rel="icon" href="./static/images/favicon.svg">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/index.js"></script>
+</head>
+
+<body>
+
+  <style>
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    .section-gap {
+      padding-top: 2.5rem;
+      padding-bottom: 2.5rem;
+    }
+
+    .img-figure {
+      display: block; 
+      margin: 0 auto;
+      width: 100%;
+      max-width: 960px;
+      height: auto;
+    }
+
+    .figure-caption {
+      font-size: 0.92rem;
+      color: #555;
+      margin-top: 0.75rem;
+      line-height: 1.5;
+    }
+
+    /* ===== Gallery cards ===== */
+    .gallery-card {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      transition: box-shadow 0.3s ease;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .gallery-card:hover {
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .video-wrapper {
+      position: relative;
+      width: 100%;
+      padding-top: 100%;
+      /* 1:1 square for turntable */
+      overflow: hidden;
+      background: #f0f0f0;
+    }
+
+    .video-wrapper video,
+    .video-wrapper img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .gallery-card .card-content {
+      padding: 0.75rem 1rem;
+      flex: 1;
+    }
+
+    .gallery-card .instruction-tag {
+      display: inline-block;
+      background: #e8f4fd;
+      color: #1a73e8;
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-bottom: 0.3rem;
+    }
+
+    .gallery-card .instruction-text {
+      font-size: 0.85rem;
+      color: #333;
+      line-height: 1.4;
+    }
+
+    /* ===== Comparison row ===== */
+    .compare-block {
+      margin-bottom: 2.5rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid #eee;
+    }
+
+    .compare-block:last-child {
+      border-bottom: none;
+    }
+
+    .compare-block .compare-instruction {
+      font-size: 1rem;
+      margin-bottom: 1rem;
+      padding: 0.6rem 1rem;
+      background: #fafafa;
+      border-left: 4px solid #1a73e8;
+      border-radius: 4px;
+    }
+
+    .method-label {
+      text-align: center;
+      font-weight: 700;
+      font-size: 0.82rem;
+      margin-bottom: 0.4rem;
+      color: #444;
+    }
+
+    .method-label.ours-label {
+      color: #c0392b;
+    }
+
+    /* ===== Ablation side-by-side ===== */
+    .ablation-label {
+      text-align: center;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #555;
+      margin-bottom: 0.3rem;
+    }
+
+    /* ===== Compact tables ===== */
+    .compact-table {
+      font-size: 0.82rem;
+      margin: 0 auto;
+    }
+
+    .compact-table th,
+    .compact-table td {
+      text-align: center;
+      vertical-align: middle;
+      padding: 0.35em 0.5em;
+    }
+
+    .compact-table thead th {
+      background-color: #f5f5f5;
+      font-weight: 600;
+    }
+
+    .highlight-row {
+      background-color: #e8f4fd;
+      font-weight: 600;
+    }
+
+    .best-val {
+      font-weight: 700;
+      color: #c0392b;
+    }
+
+    /* ===== Section divider ===== */
+    .section-divider {
+      border: none;
+      border-top: 2px solid #eee;
+      margin: 0;
+    }
+
+    /* ===== Edit type filter tabs ===== */
+    .filter-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      justify-content: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .filter-tabs .tag-btn {
+      cursor: pointer;
+      padding: 0.4em 1em;
+      border-radius: 20px;
+      border: 2px solid #dbdbdb;
+      background: #fff;
+      font-size: 0.88rem;
+      font-weight: 500;
+      transition: all 0.2s;
+      user-select: none;
+    }
+
+    .filter-tabs .tag-btn:hover {
+      border-color: #1a73e8;
+      color: #1a73e8;
+    }
+
+    .filter-tabs .tag-btn.active {
+      background: #1a73e8;
+      color: #fff;
+      border-color: #1a73e8;
+    }
+
+    /* ===== Source/Edited pair overlay ===== */
+    .pair-wrapper {
+      display: flex;
+      gap: 4px;
+    }
+
+    .pair-wrapper .pair-item {
+      flex: 1;
+      position: relative;
+    }
+
+    .pair-wrapper .pair-item img {
+      width: 100%;
+      display: block;
+      border-radius: 4px;
+    }
+
+    .pair-wrapper .pair-item .pair-label {
+      position: absolute;
+      bottom: 4px;
+      left: 4px;
+      background: rgba(0, 0, 0, 0.6);
+      color: #fff;
+      font-size: 0.7rem;
+      padding: 1px 6px;
+      border-radius: 3px;
+    }
+
+    .demo-video-section {
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    .demo-video-box {
+      border: 1px solid #eaeaea;
+      border-radius: 10px;
+      padding: 0.9rem;
+      background: #fff;
+    }
+
+    .demo-video-box .video-wrapper {
+      border-radius: 8px;
+      overflow: hidden;
+    }
+  </style>
+
+
+  <!-- ==================== TITLE ==================== -->
+  <section class="hero">
+    <div class="hero-body" style="padding-bottom: 1rem;">
+      <div class="container is-max-desktop">
+        <div class="columns is-centered">
+          <div class="column has-text-centered">
+            <h1 class="title is-2 publication-title">PriorEdit3D</h1>
+            <h2 class="subtitle is-4" style="color:#555; margin-top: -0.5rem;">
+              Learning 3D Editing without Paired Supervision via Generative Prior Distillation
+            </h2>
+            <p class="subtitle is-6" style="color:#888;">Project Page</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ==================== ABSTRACT ==================== -->
+  <section class="" style="padding-bottom: 1.5rem;">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3 has-text-centered">Abstract</h2>
+          <div class="content has-text-justified" style="font-size: 0.95rem;">
+            <p>
+              Instruction-guided 3D editing is essential for interactive content creation, yet it faces a significant
+              bottleneck: the severe scarcity of high-quality paired training data. Existing approaches attempt to
+              bypass this by either relying on slow test-time optimization or training on pseudo-pairs constructed via
+              complex pipelines, which often introduce structural drift and geometric artifacts. In this paper, we
+              propose a novel framework that learns feed-forward 3D editing without paired 3D supervision via
+              <strong>Generative Prior Distillation</strong>. Instead of relying on ground-truth 3D pairs, our core
+              idea is to distill visual, semantic, and geometric knowledge from powerful foundation models directly into
+              a 3D editing model. Specifically, through a differentiable rendering pipeline, we supervise the 3D
+              representation using two complementary signals: a <strong>2D visual prior</strong> from an image editing
+              model at the main editing view, and a <strong>semantic prior</strong> from a Vision-Language Model at
+              novel views to ensure strict instruction following and source identity preservation. Crucially, to address
+              the geometric collapse and multi-view inconsistencies inherent in 2D projection supervision, we introduce
+              a <strong>3D-aware Distribution Matching regularization</strong>. Acting as a geometric prior, this term
+              operates in the 3D latent space, constraining the edited output to remain within the manifold of realistic
+              3D assets defined by a pretrained image-to-3D teacher model. Extensive experiments demonstrate that our
+              method achieves superior instruction fidelity and cross-view consistency, significantly outperforming
+              state-of-the-art baselines.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="section-divider">
+
+
+  <!-- ==================== METHOD (one figure, concise) ==================== -->
+  <section class="section-gap">
+    <div class="container is-max-desktop">
+      <div class="has-text-centered">
+        <h2 class="title is-3">Method Overview</h2>
+      </div>
+      <div style="padding: 1rem 40px 0 40px;">
+        <img src="./assets/images/method.png" alt="PriorEdit3D Framework" class="img-figure">
+      </div>
+      <div class="columns is-centered has-text-centered" style="margin-top: 0.75rem;">
+        <div class="column is-four-fifths">
+          <p class="figure-caption">
+            Our editor predicts the edited 3D latent and is optimized via three complementary signals:
+            <b>(1)</b> pixel-level reconstruction from a 2D editing teacher,
+            <b>(2)</b> VLM-based semantic feedback for instruction following & identity preservation,
+            <b>(3)</b> DMD-based 3D distribution matching to prevent geometric collapse.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="section-divider">
+
+
+  <!-- ==================== EDITING GALLERY ==================== -->
+  <section class="section-gap">
+    <div class="container is-max-desktop">
+      <div class="has-text-centered">
+        <h2 class="title is-3">Editing Gallery</h2>
+        <p class="subtitle is-6" style="color:#888; margin-bottom: 1rem;">
+          360° turntable renderings of our editing results across various edit types.
+        </p>
+      </div>
+      <div class="filter-tabs" id="gallery-filters"></div>
+      <div class="columns is-multiline" id="gallery-grid"></div>
+    </div>
+  </section>
+
+  <hr class="section-divider">
+
+
+  <!-- ==================== BASELINE COMPARISONS ==================== -->
+  <section class="section-gap">
+    <div class="container is-max-desktop">
+      <div class="has-text-centered" style="margin-bottom: 1.5rem;">
+        <h2 class="title is-3">Baseline Comparisons</h2>
+        <p class="subtitle is-6" style="color:#888;">
+          Side-by-side comparison with state-of-the-art methods.
+        </p>
+      </div>
+      <div id="comparison-container"></div>
+    </div>
+  </section>
+
+  <hr class="section-divider">
+
+
+  <!-- ==================== ABLATION STUDY ==================== -->
+  <section class="section-gap">
+    <div class="container is-max-desktop">
+      <div class="has-text-centered" style="margin-bottom: 1.5rem;">
+        <h2 class="title is-3">Ablation Study</h2>
+        <p class="subtitle is-6" style="color:#888;">
+          Visual comparison of model variants.
+        </p>
+      </div>
+      <div id="ablation-container"></div>
+    </div>
+  </section>
+
+  <hr class="section-divider">
+
+
+</body>
+
+</html>
