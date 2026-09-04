@@ -1,0 +1,16 @@
+demo_output/
+**/__pycache__/
+splat_unilat/splat_files/*
+trained_models/
+external/
+.vscode/
+pretrained/
+outputs/
+*.log
+./datasets/
+more_results*
+logs/
+datasamples*
+ECCV_Samples/
+samples/
+tests/
