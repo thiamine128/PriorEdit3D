@@ -20,11 +20,48 @@ Our editor learns from three complementary signals:
 - **VLM semantic feedback** encourages instruction following and source identity preservation across views.
 - **3D distribution matching** regularizes geometry using a pretrained image-to-3D teacher.
 
-## Code
+## Training
 
-Training entry points: [warmup](warmup_lightning.py) and [unpaired editing](unpaired_lightning.py), with configurations in [configs/editing](configs/editing).
+Run the following commands from the repository root in a CUDA environment with PyTorch, PyTorch Lightning, and DeepSpeed. Prepare training data and compatible pretrained weights first; these and a complete environment specification are not included in the current release.
 
-The current release requires additional setup: training data, pretrained weights, a complete environment specification, and the inference scripts referenced by `inference.sh` are not included.
+### 1. Warmup
+
+[warmup_lightning.py](warmup_lightning.py) trains the editor with a flow-matching objective. The supplied configuration references `EditingImageConditionedUniLat`, which is not included in the dataset package; provide that implementation or adapt the configuration to a compatible warmup dataset before running.
+
+```bash
+python warmup_lightning.py \
+  --config configs/editing/warmup_pl.json \
+  --data_dir /path/to/prepared/data \
+  --output_dir outputs/warmup \
+  --num_gpus 1 \
+  --init_ckpt /path/to/initialization.ckpt
+```
+
+`--init_ckpt` optionally initializes model weights. To resume training, use `--load_dir outputs/warmup --ckpt latest`.
+
+### 2. Unpaired editing
+
+[unpaired_lightning.py](unpaired_lightning.py) trains with visual and VLM supervision plus 3D distribution matching, using [mix.json](configs/editing/mix.json) and [DeepSpeed](configs/deepspeed_config.json).
+
+Before launching:
+
+- Configure the dataset roots in [mix.py](unilat3d/datasets/mix.py): `./datasets/objaverse/` and `./datasets/character/`. The tracked entries are path placeholders; `--data_dir` alone does not redirect this loader.
+- Set `gs_decoder` and `gen_model` in `mix.json` to compatible pretrained model paths. Provide DINOv3 code at `external/dinov3` and weights at `external/dinov3_vith16plus_pretrain_lvd1689m-7c1da9a5.pth`.
+- Supply editor and auxiliary initialization checkpoints with `model.`-prefixed weights inside their Lightning `state_dict`.
+
+```bash
+python unpaired_lightning.py \
+  --config configs/editing/mix.json \
+  --output_dir outputs/prioredit3d \
+  --edit_model_ckpt /path/to/editor_init.ckpt \
+  --aux_model_ckpt /path/to/auxiliary_init.ckpt
+```
+
+Checkpoints and TensorBoard logs are saved under the output directory in `lightning_ckpts/` and `tb_logs/`. Training automatically resumes from `lightning_ckpts/last.ckpt` when present; use `--resume_from /path/to/checkpoint.ckpt` to select a checkpoint explicitly.
+
+## Inference
+
+[inference.sh](inference.sh) contains `infer_mix` for the editing model and `infer_unilat` for the UniLat baseline; it currently invokes the latter on GPU 6. Update its model, input, and output paths and GPU selection for your setup. The referenced `tests/inference_edit.py` and `tests/unilat_inference.py` are not included, so the script cannot run as shipped.
 
 ## Citation
 
