@@ -4,8 +4,6 @@
 
 **SIGGRAPH Asia 2026 — Conference Papers**
 
-Hao Wen, Weibin Yun, Hongxing Fan, Haotian Lu, Rui Chen, Zehuan Huang, Lu Sheng
-
 [Project Page](https://thiamine128.github.io/PriorEdit3D/) · [Paper](https://arxiv.org/abs/2609.04942) · [PDF](https://arxiv.org/pdf/2609.04942) · [DOI](https://doi.org/10.1145/3829340.3842352)
 
 PriorEdit3D learns instruction-guided, feed-forward 3D editing without paired 3D supervision by distilling visual, semantic, and geometric priors from pretrained foundation models.
