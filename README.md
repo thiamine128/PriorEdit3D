@@ -4,7 +4,7 @@
 
 **SIGGRAPH Asia 2026 — Conference Papers**
 
-[Project Page](https://thiamine128.github.io/PriorEdit3D/) · [Paper](https://arxiv.org/abs/2609.04942) · [PDF](https://arxiv.org/pdf/2609.04942) · [DOI](https://doi.org/10.1145/3829340.3842352)
+[Project Page](https://thiamine128.github.io/PriorEdit3D/) · [Paper](https://arxiv.org/abs/2609.04942) · [PDF](https://arxiv.org/pdf/2609.04942) · [DOI](https://doi.org/10.1145/3829340.3842352) · [Ckpts](https://huggingface.co/thiamine/Prior3DEditCkpt) · [Dataset](https://huggingface.co/datasets/thiamine/PriorEdit3DDataset)
 
 PriorEdit3D learns instruction-guided, feed-forward 3D editing without paired 3D supervision by distilling visual, semantic, and geometric priors from pretrained foundation models.
 
