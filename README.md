@@ -1,10 +1,10 @@
-# PriorEdit3D
+ # PriorEdit3D
 
 ### Learning 3D Editing without Paired Supervision via Generative Prior Distillation
 
 **SIGGRAPH Asia 2026 — Conference Papers**
 
-[Project Page](https://thiamine128.github.io/PriorEdit3D/) · [Paper](https://arxiv.org/abs/2609.04942) · [PDF](https://arxiv.org/pdf/2609.04942) · [DOI](https://doi.org/10.1145/3829340.3842352) · [Ckpts](https://huggingface.co/thiamine/Prior3DEditCkpt) · [Dataset](https://huggingface.co/datasets/thiamine/PriorEdit3DDataset)
+[Project Page](https://thiamine128.github.io/PriorEdit3D/) · [Paper](https://arxiv.org/abs/2609.04942) · [PDF](https://arxiv.org/pdf/2609.04942) · [DOI](https://doi.org/10.1145/3829340.3842352) · [Checkpoints](https://huggingface.co/thiamine/Prior3DEditCkpt) · [Dataset](https://huggingface.co/datasets/thiamine/PriorEdit3DDataset)
 
 PriorEdit3D learns instruction-guided, feed-forward 3D editing without paired 3D supervision by distilling visual, semantic, and geometric priors from pretrained foundation models.
 
@@ -20,9 +20,30 @@ Our editor learns from three complementary signals:
 - **VLM semantic feedback** encourages instruction following and source identity preservation across views.
 - **3D distribution matching** regularizes geometry using a pretrained image-to-3D teacher.
 
+## Pretrained Checkpoints
+
+Pretrained weights are available on [Hugging Face](https://huggingface.co/thiamine/Prior3DEditCkpt/tree/main/checkpoints):
+
+| Checkpoint | Size | Description |
+| --- | ---: | --- |
+| [`warmup.ckpt`](https://huggingface.co/thiamine/Prior3DEditCkpt/blob/main/checkpoints/warmup.ckpt) | 15.7 GB | Warmup-stage checkpoint |
+| [`pixel_dmd_vlm.pt`](https://huggingface.co/thiamine/Prior3DEditCkpt/blob/main/checkpoints/pixel_dmd_vlm.pt) | 22.6 GB | Editing-stage checkpoint (DMD and VLM supervision) |
+
+Download both files from the repository root:
+
+```bash
+pip install -U huggingface_hub
+hf download thiamine/Prior3DEditCkpt \
+  checkpoints/warmup.ckpt \
+  checkpoints/pixel_dmd_vlm.pt \
+  --local-dir ./pretrained
+```
+
+The downloaded files will be placed under `pretrained/checkpoints/`. You can also download each file directly from the links above. The checkpoints do not by themselves provide a complete runnable inference setup; additional model components and inference scripts described below are still required.
+
 ## Training
 
-Run the following commands from the repository root in a CUDA environment with PyTorch, PyTorch Lightning, and DeepSpeed. Prepare training data and compatible pretrained weights first; these and a complete environment specification are not included in the current release.
+Run the following commands from the repository root in a CUDA environment with PyTorch, PyTorch Lightning, and DeepSpeed. Prepare training data and the required auxiliary pretrained weights first; these and a complete environment specification are not included in the current release.
 
 ### 1. Warmup
 
